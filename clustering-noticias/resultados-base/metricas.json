@@ -1,0 +1,289 @@
+{
+  "corpus": {
+    "url": "https://raw.githubusercontent.com/derekgreene/bbc-datasets/d81c6d9543cb90683b6927f35f6d06ccb4f59b55/raw/bbc-fulltext.zip",
+    "sha256": "a351031a62325b3d7ff13146eeb035c22feca8290913b5183d1ff3be35109495",
+    "classes": {
+      "business": 510,
+      "entertainment": 386,
+      "politics": 417,
+      "sport": 511,
+      "tech": 401
+    }
+  },
+  "preprocessing": {
+    "encoding": "utf-8",
+    "document_order": "sorted archive paths",
+    "lowercase": true,
+    "token_pattern": "(?u)\\b[a-z]{2,}\\b",
+    "stop_words": "sklearn:english",
+    "min_df": 1,
+    "normalization": "l2"
+  },
+  "shape": [
+    2225,
+    27556
+  ],
+  "idf_formula": "ln((1 + N) / (1 + df)) + 1",
+  "kmeans": {
+    "n_clusters": 5,
+    "n_init": 1,
+    "max_iter": 300,
+    "tol": 0.0,
+    "algorithm": "lloyd"
+  },
+  "initial_documents": {
+    "0": [
+      "bbc/sport/103.txt",
+      "bbc/politics/241.txt",
+      "bbc/entertainment/091.txt",
+      "bbc/entertainment/175.txt",
+      "bbc/tech/066.txt"
+    ],
+    "1": [
+      "bbc/politics/242.txt",
+      "bbc/business/078.txt",
+      "bbc/sport/366.txt",
+      "bbc/tech/290.txt",
+      "bbc/politics/155.txt"
+    ],
+    "2": [
+      "bbc/entertainment/154.txt",
+      "bbc/business/243.txt",
+      "bbc/tech/037.txt",
+      "bbc/entertainment/072.txt",
+      "bbc/politics/025.txt"
+    ],
+    "3": [
+      "bbc/business/399.txt",
+      "bbc/sport/490.txt",
+      "bbc/business/191.txt",
+      "bbc/entertainment/017.txt",
+      "bbc/business/404.txt"
+    ],
+    "4": [
+      "bbc/tech/272.txt",
+      "bbc/tech/136.txt",
+      "bbc/sport/301.txt",
+      "bbc/politics/242.txt",
+      "bbc/tech/269.txt"
+    ]
+  },
+  "versions": {
+    "python": "3.12.3",
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "scikit-learn": "1.9.1"
+  },
+  "runs": [
+    {
+      "weight": "TF",
+      "seed": 0,
+      "ari": 0.5385431725671544,
+      "ami": 0.6194907932559217,
+      "iterations": 22,
+      "cluster_sizes": [
+        503,
+        318,
+        178,
+        868,
+        358
+      ]
+    },
+    {
+      "weight": "TF-IDF",
+      "seed": 0,
+      "ari": 0.5528822254037129,
+      "ami": 0.658157604128208,
+      "iterations": 13,
+      "cluster_sizes": [
+        388,
+        874,
+        165,
+        426,
+        372
+      ]
+    },
+    {
+      "weight": "Binary",
+      "seed": 0,
+      "ari": 0.5636271136884312,
+      "ami": 0.6703834969292561,
+      "iterations": 9,
+      "cluster_sizes": [
+        388,
+        938,
+        227,
+        293,
+        379
+      ]
+    },
+    {
+      "weight": "TF",
+      "seed": 1,
+      "ari": 0.6366944354960068,
+      "ami": 0.6692070920193907,
+      "iterations": 23,
+      "cluster_sizes": [
+        309,
+        733,
+        503,
+        372,
+        308
+      ]
+    },
+    {
+      "weight": "TF-IDF",
+      "seed": 1,
+      "ari": 0.47305713790274506,
+      "ami": 0.6351147208997696,
+      "iterations": 15,
+      "cluster_sizes": [
+        933,
+        257,
+        493,
+        322,
+        220
+      ]
+    },
+    {
+      "weight": "Binary",
+      "seed": 1,
+      "ari": 0.5226540206834287,
+      "ami": 0.6211765165142319,
+      "iterations": 20,
+      "cluster_sizes": [
+        451,
+        290,
+        815,
+        365,
+        304
+      ]
+    },
+    {
+      "weight": "TF",
+      "seed": 2,
+      "ari": 0.506441558120146,
+      "ami": 0.5655233425507196,
+      "iterations": 25,
+      "cluster_sizes": [
+        726,
+        629,
+        425,
+        186,
+        259
+      ]
+    },
+    {
+      "weight": "TF-IDF",
+      "seed": 2,
+      "ari": 0.49699523725948264,
+      "ami": 0.6260215870662614,
+      "iterations": 13,
+      "cluster_sizes": [
+        958,
+        388,
+        393,
+        192,
+        294
+      ]
+    },
+    {
+      "weight": "Binary",
+      "seed": 2,
+      "ari": 0.8584279087791725,
+      "ami": 0.8249236838518631,
+      "iterations": 11,
+      "cluster_sizes": [
+        438,
+        383,
+        508,
+        484,
+        412
+      ]
+    },
+    {
+      "weight": "TF",
+      "seed": 3,
+      "ari": 0.5801133035362579,
+      "ami": 0.6139787578183726,
+      "iterations": 23,
+      "cluster_sizes": [
+        308,
+        555,
+        389,
+        217,
+        756
+      ]
+    },
+    {
+      "weight": "TF-IDF",
+      "seed": 3,
+      "ari": 0.5432808215918844,
+      "ami": 0.667327315075758,
+      "iterations": 26,
+      "cluster_sizes": [
+        233,
+        495,
+        354,
+        199,
+        944
+      ]
+    },
+    {
+      "weight": "Binary",
+      "seed": 3,
+      "ari": 0.8773706597626175,
+      "ami": 0.8394102125117147,
+      "iterations": 18,
+      "cluster_sizes": [
+        432,
+        512,
+        400,
+        368,
+        513
+      ]
+    },
+    {
+      "weight": "TF",
+      "seed": 4,
+      "ari": 0.5218093540717722,
+      "ami": 0.6316588275402156,
+      "iterations": 11,
+      "cluster_sizes": [
+        290,
+        123,
+        525,
+        1035,
+        252
+      ]
+    },
+    {
+      "weight": "TF-IDF",
+      "seed": 4,
+      "ari": 0.6224349101134744,
+      "ami": 0.6912556707240511,
+      "iterations": 26,
+      "cluster_sizes": [
+        202,
+        130,
+        495,
+        853,
+        545
+      ]
+    },
+    {
+      "weight": "Binary",
+      "seed": 4,
+      "ari": 0.8805537716635681,
+      "ami": 0.8456753233416561,
+      "iterations": 10,
+      "cluster_sizes": [
+        397,
+        510,
+        509,
+        439,
+        370
+      ]
+    }
+  ]
+}
