@@ -1,0 +1,7 @@
+__pycache__/
+.ipynb_checkpoints/
+.venv/
+/clasificacion-resenas/materiales/
+/clasificacion-resenas/Dataset_reviews.zip
+/clustering-noticias/datos/
+/clustering-noticias/resultados-base/*.csv
