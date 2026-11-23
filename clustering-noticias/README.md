@@ -14,6 +14,16 @@ Ejecuta `python clustering_base.py`. La ejecución comprobada usa Python 3.12.3,
 - `resultados-base/grupos.csv` se genera con los grupos por documento y categoría de referencia.
 - `resultados-base/frecuencia-documental.csv` se genera con la frecuencia documental y el IDF de cada término del vocabulario.
 
-Para comprobar las métricas y frecuencias y regenerar los perfiles de términos por grupo, ejecuta `python analizar_resultados.py --output /tmp/perfiles-clustering.json`. Consulta el [borrador de la memoria](memoria.md) para ver la comparación y sus límites.
+Para comprobar las 15 métricas y las frecuencias documentales y reproducir el contraste de *government* y *people*, ejecuta estos comandos desde este directorio:
+
+```sh
+python analizar_resultados.py --output /tmp/perfiles-clustering.json --terms government people
+jq -r -f concentracion-binary.jq /tmp/perfiles-clustering.json > /tmp/concentracion-binary.csv
+cmp /tmp/concentracion-binary.csv concentracion-binary.csv
+```
+
+El [CSV](concentracion-binary.csv) incluye los cinco grupos de Binary para cada semilla. `difference_pp` resta el porcentaje de presencia fuera del grupo al porcentaje dentro. `majority_topic` indica la categoría de referencia más numerosa de cada grupo.
+
+Consulta el [borrador corregido](memoria.md).
 
 Greene, D. y Cunningham, P. (2006). Practical solutions to the problem of diagonal dominance in kernel document clustering. *Proceedings of the 23rd International Conference on Machine Learning*, 377–384. [ACM](https://doi.org/10.1145/1143844.1143892)

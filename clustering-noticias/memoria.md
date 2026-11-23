@@ -6,9 +6,9 @@ Representación de Textos en Espacios Vectoriales y Probabilísticos · Bloque 1
 
 BBC News reúne 2.225 artículos en inglés de 2004 y 2005. El corpus contiene 510 artículos de negocios, 386 de entretenimiento, 417 de política, 511 de deporte y 401 de tecnología. Se conservó la colección publicada, que incluye 98 pares de textos idénticos. Las categorías de la BBC sirvieron para evaluar los grupos después del ajuste.
 
-Se pasaron los textos a minúsculas, se extrajeron secuencias de dos o más letras de la a a la z y se eliminaron las palabras vacías de la lista inglesa de scikit-learn. Así se obtuvo un vocabulario común de 27.556 unigramas. TF asignó el recuento de cada término y Binary asignó 1 si aparecía y 0 si estaba ausente. TF-IDF multiplicó el recuento por 1 + ln[(N + 1)/(df + 1)], con N = 2.225 y df igual al número de documentos que contienen el término. Cada vector se normalizó con norma L2 después de aplicar su ponderación.
+Se pasaron los textos a minúsculas, se extrajeron palabras de dos o más letras de la a a la z y se eliminaron las palabras vacías de la lista inglesa de scikit-learn. Así se obtuvo un vocabulario común de 27.556 unigramas. TF asignó el recuento de cada término y Binary asignó 1 si aparecía y 0 si estaba ausente. TF-IDF multiplicó el recuento por el IDF suavizado, 1 + ln[(N + 1)/(df + 1)], con N = 2.225 y df igual al número de documentos que contienen el término. Cada vector se normalizó con norma L2 después de aplicar su ponderación. [Fórmula del IDF](https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfTransformer.html)
 
-Se ajustó K-means de Lloyd con distancia euclídea, cinco grupos, tolerancia cero y un máximo de 300 iteraciones. Para cada semilla, de 0 a 4, se eligieron cinco artículos distintos al azar. Los tres ajustes de esa semilla partieron de esos mismos artículos, representados con la ponderación correspondiente. Se ejecutó un ajuste por combinación de semilla y ponderación. Con el corpus, el preprocesado y el algoritmo fijados, la ponderación fue la única variable comparada dentro de cada semilla.
+Se ajustó K-means de Lloyd con scikit-learn 1.9.1, distancia euclídea, cinco grupos, tolerancia cero y un máximo de 300 iteraciones. Para cada semilla, de 0 a 4, se eligieron cinco artículos distintos al azar. Los tres ajustes de esa semilla partieron de esos mismos artículos, representados con la ponderación correspondiente. Se ejecutó un ajuste por combinación de semilla y ponderación. Con el corpus, el preprocesado y el algoritmo fijados, la ponderación fue la única variable comparada dentro de cada semilla.
 
 ## Resultados del agrupamiento
 
@@ -31,7 +31,7 @@ Añadir IDF a TF elevó la AMI media de 0,620 a 0,656 y redujo el ARI medio de 0
 
 Se calculó df para cada uno de los 27.556 términos. La frecuencia va de 1 a 1.888 documentos. Hay 10.864 términos presentes en un solo artículo, todos con IDF de 8,015. El término más extendido es *said*, con IDF de 1,164. El factor reduce el peso relativo de las palabras que aparecen en muchos documentos frente a las menos extendidas, antes de la normalización L2.
 
-Para detectar términos característicos, se restó el porcentaje de documentos con el término fuera de un grupo al porcentaje dentro. Se ilustra el contraste con Binary en la semilla 4, donde los cinco grupos tienen categorías mayoritarias distintas. Los nombres de la tabla se asignan a posteriori por esa mayoría. La columna «Fuera» cuenta los documentos del resto del corpus.
+La concentración se midió restando el porcentaje de documentos con el término fuera de un grupo al porcentaje dentro. El nombre de cada grupo indica su categoría más numerosa. Cada fracción da los documentos con el término sobre el total del grupo o del resto del corpus. Estos ejemplos proceden de Binary con la semilla 4.
 
 | Grupo (tamaño) | Término | df | IDF | Dentro | Fuera |
 | --- | --- | ---: | ---: | ---: | ---: |
@@ -39,17 +39,26 @@ Para detectar términos característicos, se restó el porcentaje de documentos 
 | Negocios (510) | *market* | 364 | 2,808 | 221/510 | 143/1.715 |
 | Deporte (509) | *game* | 337 | 2,885 | 231/509 | 106/1.716 |
 | Deporte (509) | *rugby* | 77 | 4,351 | 73/509 | 4/1.716 |
-| Política (439) | *government* | 470 | 2,553 | 294/439 | 176/1.786 |
 | Política (439) | *labour* | 238 | 3,231 | 211/439 | 27/1.786 |
 | Política (439) | *said* | 1.888 | 1,164 | 414/439 | 1.474/1.786 |
 | Tecnología (370) | *technology* | 237 | 3,236 | 196/370 | 41/1.855 |
-| Tecnología (370) | *people* | 798 | 2,025 | 285/370 | 513/1.855 |
 
-La penalización de *said* tiene sentido. Aparece en el 94,3 % del grupo de política y también en el 82,5 % del resto. En cambio, *government* aparece en el 67,0 % del grupo y en el 9,9 % del resto. Con el mismo recuento en un artículo, su peso equivale al 79 % del de *labour* por el IDF, aunque su diferencia de presencia dentro y fuera del grupo es mayor (57,1 frente a 46,6 puntos). También *people* tiene un IDF bajo y, en esta partición, distingue al grupo de tecnología (77,0 % dentro y 27,7 % fuera). La frecuencia global explica el factor, pero deja fuera la concentración por grupo.
+Reducir el peso relativo de *said* tiene sentido porque aparece tanto en política (94,3 %) como en el resto (82,5 %). El IDF también da menos peso a términos frecuentes que sí distinguen grupos. *Government* (df = 470, IDF = 2,553) recibe el 79 % del peso de *labour* a igual recuento, aunque en política la diferencia de presencia es mayor con *government* (57,1 frente a 46,6 puntos en la semilla 4). *People* tiene un IDF aún menor (df = 798, IDF = 2,025).
 
-Un IDF alto tampoco garantiza que el término represente a todo un grupo. *Rugby* aparece casi exclusivamente en el grupo de deporte, pero cubre solo el 14,3 % de sus artículos. *Game* cubre el 45,4 % y tiene un IDF menor. Los perfiles describen las particiones obtenidas. No permiten atribuir una reasignación a una palabra concreta, porque TF-IDF cambia simultáneamente el peso de todo el vocabulario.
+En Binary, las semillas 2, 3 y 4 dieron el mayor contraste de *government* en el grupo de política y el de *people* en el de tecnología.
 
-Con este corpus y estas cinco inicializaciones, la sola presencia de los términos dio el mejor acuerdo medio con las categorías. La comparación entre TF y TF-IDF muestra que reducir el peso de palabras muy extendidas puede ser razonable y, a la vez, restar peso relativo a palabras útiles para distinguir un tema. Las conclusiones se limitan a este diseño, incluidas las repeticiones del corpus y el valor de cinco grupos.
+| Semilla | Término | Dentro | Fuera | Diferencia (pp) |
+| --- | --- | ---: | ---: | ---: |
+| 2 | *government* | 286/412 | 184/1.813 | 59,3 |
+| 2 | *people* | 287/383 | 511/1.842 | 47,2 |
+| 3 | *government* | 290/432 | 180/1.793 | 57,1 |
+| 3 | *people* | 299/400 | 499/1.825 | 47,4 |
+| 4 | *government* | 294/439 | 176/1.786 | 57,1 |
+| 4 | *people* | 285/370 | 513/1.855 | 49,4 |
+
+La concentración se repite en esas tres particiones. En la semilla 0, el grupo donde más se concentró *government* mezcló política y negocios. En la semilla 4, *rugby* ilustra el caso inverso: su IDF es alto y casi todas sus apariciones están en deporte, pero cubre el 14,3 % del grupo frente al 45,4 % de *game*.
+
+El IDF recoge la frecuencia global y pasa por alto cómo se reparte un término entre grupos. Los ejemplos muestran por qué la penalización puede ser razonable para *said* y reducir el peso relativo de términos que caracterizan un grupo. Dado que TF-IDF modifica todo el vocabulario, el experimento permite comparar las ponderaciones en conjunto. En este corpus y con cinco grupos, Binary obtuvo el mejor acuerdo medio, mientras que el efecto de añadir IDF a TF dependió de la métrica.
 
 ### Fuente del corpus
 
