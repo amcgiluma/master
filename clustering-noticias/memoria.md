@@ -12,7 +12,7 @@ Se ajustó K-means de Lloyd con scikit-learn 1.9.1, distancia euclídea, cinco g
 
 ## Resultados del agrupamiento
 
-El índice de Rand ajustado (ARI) compara qué pares de artículos quedan juntos o separados en el agrupamiento y en las categorías de referencia. La información mutua ajustada (AMI) mide cuánta información comparten ambas particiones. Las dos medidas corrigen la coincidencia esperable por azar.
+El índice de Rand ajustado (ARI) compara qué pares de artículos quedan juntos o separados en el agrupamiento y en las categorías de referencia. La información mutua ajustada (AMI) mide cuánta información comparten ambas particiones. Las dos medidas corrigen la coincidencia esperable por azar. Las medias se calcularon antes de redondear.
 
 | Semilla | TF ARI | TF AMI | TF-IDF ARI | TF-IDF AMI | Binary ARI | Binary AMI |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -23,9 +23,9 @@ El índice de Rand ajustado (ARI) compara qué pares de artículos quedan juntos
 | 4 | 0,522 | 0,632 | 0,622 | 0,691 | 0,881 | 0,846 |
 | **Media** | **0,557** | **0,620** | **0,538** | **0,656** | **0,741** | **0,760** |
 
-Binary obtuvo las medias más altas y encabezó ambas métricas en cuatro de cinco semillas. La ventaja fue pequeña en la semilla 0 y mucho mayor de la 2 a la 4. Por ejemplo, el mayor grupo de Binary en la semilla 0 reunió 493 artículos de negocios y 406 de política. En la semilla 4 esas dos categorías quedaron en grupos distintos, con 486 de negocios en uno y 404 de política en otro. La semilla 1 favoreció a TF en las dos métricas.
+Binary obtuvo las medias más altas y encabezó ambas métricas en cuatro de cinco semillas. La ventaja fue pequeña en la semilla 0 y mucho mayor de la 2 a la 4. Por ejemplo, de los 938 artículos del grupo más grande de Binary en la semilla 0, 493 eran de negocios y 406, de política. En la semilla 4 esas dos categorías quedaron en grupos distintos, con 486 de negocios en uno y 404 de política en otro. La semilla 1 favoreció a TF en las dos métricas.
 
-Añadir IDF a TF elevó la AMI media de 0,620 a 0,656 y redujo el ARI medio de 0,557 a 0,538. Las métricas recogen aspectos distintos del acuerdo y aquí dan un balance diferente. En la semilla 4, TF concentró 492 noticias de negocios y 409 de política en un grupo. TF-IDF reunió 485 noticias de negocios en otro grupo, aunque agrupó 401 de política con 376 de entretenimiento.
+Añadir IDF a TF elevó la AMI media de 0,620 a 0,656 y redujo el ARI medio de 0,557 a 0,538. Las métricas recogen aspectos distintos del acuerdo y aquí dan un balance diferente. En la semilla 4, TF agrupó 492 noticias de negocios y 409 de política en un grupo de 1.035 artículos. TF-IDF reunió 485 noticias de negocios en otro grupo, aunque agrupó 401 de política con 376 de entretenimiento.
 
 ## Frecuencia documental y efecto del IDF
 
@@ -43,9 +43,9 @@ La concentración se midió restando el porcentaje de documentos con el término
 | Política (439) | *said* | 1.888 | 1,164 | 414/439 | 1.474/1.786 |
 | Tecnología (370) | *technology* | 237 | 3,236 | 196/370 | 41/1.855 |
 
-Reducir el peso relativo de *said* tiene sentido porque aparece tanto en política (94,3 %) como en el resto (82,5 %). El IDF también da menos peso a términos frecuentes que sí distinguen grupos. *Government* (df = 470, IDF = 2,553) recibe el 79 % del peso de *labour* a igual recuento, aunque en política la diferencia de presencia es mayor con *government* (57,1 frente a 46,6 puntos en la semilla 4). *People* tiene un IDF aún menor (df = 798, IDF = 2,025).
+Reducir el peso relativo de *said* tiene sentido porque, en Binary con la semilla 4, aparece en el 94,3 % del grupo de política y en el 82,5 % de los demás artículos. El IDF también da menos peso a términos frecuentes que sí distinguen grupos. *Government* (df = 470, IDF = 2,553) recibe el 79 % del peso de *labour* a igual recuento, aunque en ese grupo el contraste de presencia es mayor con *government* (57,1 frente a 46,6 puntos). *People* tiene un IDF aún menor (df = 798, IDF = 2,025).
 
-En Binary, las semillas 2, 3 y 4 dieron el mayor contraste de *government* en el grupo de política y el de *people* en el de tecnología.
+En cada una de las semillas 2, 3 y 4 de Binary, el grupo de política mostró el mayor contraste para *government* y el de tecnología para *people*.
 
 | Semilla | Término | Dentro | Fuera | Diferencia (pp) |
 | --- | --- | ---: | ---: | ---: |
