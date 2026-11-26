@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tarea 2 · Representación de textos</title>
+  <style>
+    :root { color: #202631; background: #fff; font: 16px/1.55 system-ui, sans-serif; }
+    body { max-width: 46rem; padding: 0 1rem; margin: 2.5rem auto; }
+    h1, h2 { line-height: 1.2; }
+    h1 { margin-bottom: 1rem; }
+    h2 { font-size: 1.25rem; margin: 1.8rem 0 .5rem; }
+    p { margin: .55rem 0 1rem; }
+    a { color: #234e82; }
+    code { overflow-wrap: anywhere; }
+    .table-scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-variant-numeric: tabular-nums; }
+    caption { text-align: left; font-weight: 600; margin-bottom: .35rem; }
+    th, td { padding: .35rem .5rem; border-bottom: 1px solid #c9cfd8; text-align: left; }
+    td.number { text-align: right; }
+    @media print {
+      :root { font-size: 11pt; }
+      body { margin: 0 auto; }
+      h2 { break-after: avoid; }
+      .table-scroll { overflow: visible; break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Tarea 2 · Representación de textos</h1>
+  <p>Se generaron cuatro representaciones de los mismos 805 mensajes, procedentes de siete grupos del corpus 20 Newsgroups. Cada matriz conserva una fila por mensaje para poder comparar después las representaciones en una tarea de agrupamiento temático.</p>
+
+  <h2>Preparación del corpus</h2>
+  <p>Un script de Python leyó cada mensaje como bytes y buscó la primera línea en blanco, incluidos los separadores con espacios o tabuladores. Antes de cortar, comprobó que el prefijo tuviera nombres de campo seguidos de dos puntos o líneas indentadas de continuación. Se conservó el cuerpo sin cambios, incluida la firma. Las firmas tienen formas distintas y retirarlas con una regla general podía eliminar parte del mensaje. El grupo temático se descartó junto con la cabecera. Para ordenar los documentos se usó solo su identificador numérico.</p>
+  <p>En ambos modelos se decodificó el cuerpo como UTF-8. Se sustituyó por un espacio cada uno de los tres bytes inválidos de un mensaje para evitar unir fragmentos. Se separaron las cadenas por espacios en blanco, se convirtieron a minúsculas y se normalizaron a Unicode NFC. Se unificó el apóstrofo tipográfico con el recto, se retiraron los signos y otros caracteres no alfanuméricos de los extremos y se conservaron las formas alfabéticas, con apóstrofos o guiones internos cuando unen fragmentos alfabéticos. Se eliminaron las palabras vacías inglesas de <code>ENGLISH_STOP_WORDS</code> de scikit-learn.</p>
+
+  <h2>Espacio vectorial con TF y TF-IDF</h2>
+  <p>Se aplicó el truncador Porter de NLTK, en modo <code>NLTK_EXTENSIONS</code>, para reunir variantes morfológicas en una misma columna. Se conservaron las formas truncadas que aparecían en al menos dos documentos. Esta frecuencia mínima evita dedicar columnas a rasgos exclusivos de un mensaje y se calcula sin usar las categorías. Se pasó de 36.571 cadenas distintas tras la separación inicial a 11.552 formas truncadas distintas tras el preprocesamiento y a 5.875 tras la selección. Las columnas siguen el mismo orden lexicográfico en TF y TF-IDF.</p>
+  <p>TF contiene el número de ocurrencias de cada forma truncada en el documento. Para TF-IDF, <code>TfidfTransformer</code> de scikit-learn multiplicó cada recuento por el IDF suavizado, <var>idf</var>(<var>t</var>) = 1 + ln[(1 + 805) / (1 + <var>df</var>(<var>t</var>))], donde <var>df</var>(<var>t</var>) cuenta los documentos que contienen el término. Después normalizó cada fila no nula con la norma L2. El IDF reduce el peso relativo de los términos que aparecen en muchos documentos. La normalización evita que la magnitud del vector dependa directamente de la longitud del mensaje.</p>
+
+  <h2>Representación mediante embeddings</h2>
+  <p>Se usó GloVe 2024 Wikipedia + Gigaword 5, un modelo preentrenado en inglés con formas en minúsculas y 50 componentes por palabra. Su vocabulario es adecuado para mensajes en inglés y la dimensión elegida permite guardar cada documento en un vector compacto. Python recorrió el archivo comprimido por líneas y cargó en NumPy solo los vectores utilizados. Stanford distribuye los vectores bajo licencia PDDL 1.0. <a href="https://github.com/stanfordnlp/GloVe#download-pre-trained-word-vectors">Modelo preentrenado y licencia</a>.</p>
+  <p>Se conservaron las formas flexionadas al buscar en GloVe. El truncamiento puede producir raíces ausentes del vocabulario y la lematización puede sustituir una forma que ya tiene vector por otra con una representación distinta. Para calcular los pesos se usó el vocabulario de formas sin truncar y se omitió el umbral de frecuencia mínima. Así se pudieron incorporar términos representables aunque solo aparecieran en un documento.</p>
+  <p>La media simple sumó los vectores de todas las ocurrencias cubiertas, incluidas las repetidas, y dividió por el número de dichas ocurrencias. La media ponderada multiplicó el vector de cada forma cubierta por su TF × IDF suavizado y dividió la suma vectorial por la suma de los pesos. En este caso <var>df</var> se calculó sobre las formas sin truncar en los 805 cuerpos. Ambas medias excluyeron las palabras fuera del vocabulario de GloVe, también llamadas OOV. Cuando un documento carece de términos representables, se guarda un vector nulo. Solo ocurrió en el documento <code>51541</code>, cuyo cuerpo estaba en blanco y cuya fila en TF y TF-IDF también quedó a cero. Mantener esa fila conserva la correspondencia entre documentos y representaciones.</p>
+
+  <div class="table-scroll" tabindex="0">
+  <table>
+    <caption>Cobertura de GloVe tras el preprocesamiento</caption>
+    <thead><tr><th scope="col">Unidad</th><th scope="col">Total</th><th scope="col">Cubiertas</th><th scope="col">OOV</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">Formas distintas</th><td class="number">15.866</td><td class="number">13.943 (87,88 %)</td><td class="number">1.923 (12,12 %)</td></tr>
+      <tr><th scope="row">Ocurrencias</th><td class="number">98.091</td><td class="number">92.340 (94,14 %)</td><td class="number">5.751 (5,86 %)</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>Matrices y formato de reutilización</h2>
+  <div class="table-scroll" tabindex="0">
+  <table>
+    <caption>Dimensiones de los cuatro archivos</caption>
+    <thead><tr><th scope="col">Archivo</th><th scope="col">Documentos × rasgos</th><th scope="col">Tipo de dato</th><th scope="col">Ceros</th></tr></thead>
+    <tbody>
+      <tr><th scope="row"><code>tf.npz</code></th><td class="number">805 × 5.875</td><td><code>int32</code></td><td class="number">98,7754 %</td></tr>
+      <tr><th scope="row"><code>tf-idf.npz</code></th><td class="number">805 × 5.875</td><td><code>float64</code></td><td class="number">98,7754 %</td></tr>
+      <tr><th scope="row"><code>embeddings-media.npz</code></th><td class="number">805 × 50</td><td><code>float32</code></td><td>—</td></tr>
+      <tr><th scope="row"><code>embeddings-tf-idf.npz</code></th><td class="number">805 × 50</td><td><code>float32</code></td><td>—</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>Cada matriz léxica tiene 57.918 valores no nulos entre 4.729.375 celdas. Por su dispersión, ambas se guardaron en formato CSR comprimido, que almacena los valores no nulos y sus índices sin materializar los ceros. Se cargan con <code>scipy.sparse.load_npz</code>. Los embeddings se guardaron como matrices densas <code>float32</code> en archivos NumPy comprimidos. Se abren con <code>numpy.load(ruta, allow_pickle=False)</code> y sus claves son <code>vectores</code> y <code>documentos</code>. El formato binario conserva dimensiones y tipos en la recarga. <code>documentos.json</code> fija el orden de las filas en las cuatro matrices y <code>vocabulario.json</code> identifica las columnas de las dos matrices léxicas.</p>
+
+  <h2>Conclusiones</h2>
+  <p>TF y TF-IDF comparten vocabulario, filas y posiciones no nulas. La comparación entre ambas permite estudiar el efecto del pesado TF-IDF con normalización sin cambiar los rasgos. Las medias GloVe reducen cada documento a 50 componentes y pierden el orden de las palabras. La cobertura es mayor por ocurrencias que por formas distintas, señal de que las formas desconocidas se repiten menos en este corpus. La media ponderada da más influencia a las palabras representables con un peso TF-IDF alto. El efecto de estas decisiones sobre el agrupamiento queda por medir en la tarea posterior.</p>
+</main>
+</body>
+</html>
